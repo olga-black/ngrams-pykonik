@@ -41,23 +41,29 @@ def get_most_common_matches(previous_words, frequencies):
 def get_next_word(most_common_matches):
 	return random.choice(most_common_matches)
 
-def postprocess_text(text):
-	pass
+def postprocess_sentence(sentence):
+    sent  = [w for w in sentence if '<' not in w]
+    sent[0] = sent[0].capitalize()
+    sent = " ".join(sent)
+    sent = re.sub(r" (?='|\.|,|n't|[!]|[?])", "", sent)
+    return sent
 
 def generate_text(n, n_sentences, corpus_file):
 	corpus = preprocess_corpus(corpus_file)
 	ngrams_ = make_ngrams(n, corpus)
 	freqs = get_ngram_frequencies(ngrams_)
-	output = []
+	output = ""
 	for i in range(n_sentences):
-		output.extend(get_start_sequence(ngrams_))
+		sent = []
+		sent.extend(get_start_sequence(ngrams_))
 		while True:
-			previous_words = output[-(n-1):]
+			previous_words = sent[-(n-1):]
 			matches = get_most_common_matches(previous_words, freqs)
 			next_word = get_next_word(matches)
-			output.append(next_word)
+			sent.append(next_word)
 			if next_word == '</s>':
 				break
+		output += postprocess_sentence(sent)
 	return output
 
 

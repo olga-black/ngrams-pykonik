@@ -24,12 +24,12 @@ def get_ngram_frequencies(ngrams):
 	return freq
 
 
-def get_start_sequence(ngrams):
-	while True:
-		start_sequence = random.choice(ngrams)
-		if not re.findall(r"</s>|\.|n't|'s|'m|'d|'ve|\,", start_sequence[0]):
-			break
-	return start_sequence
+def get_start_sequences(ngrams):
+	start_sequences = [g for g in ngrams if '<s>' in g]
+	return start_sequences
+
+def choose_start(start_sequences):
+	return random.choice(start_sequences)
 
 def get_most_common_matches(previous_words, frequencies):
 	previous_words = tuple(previous_words)
@@ -43,7 +43,7 @@ def get_next_word(most_common_matches):
 
 def postprocess_sentence(sentence):
     sent  = [w for w in sentence if '<' not in w]
-    sent[0] = sent[0].capitalize()
+    # sent[0] = sent[0].capitalize()
     sent = " ".join(sent)
     sent = re.sub(r" (?=;|'|\.|,|n't|[!]|[?])", "", sent)
     sent += " "
@@ -53,10 +53,11 @@ def generate_text(n, n_sentences, corpus_file):
 	corpus = preprocess_corpus(corpus_file)
 	ngrams_ = make_ngrams(n, corpus)
 	freqs = get_ngram_frequencies(ngrams_)
+	start_sequences = get_start_sequences(ngrams_)
 	output = ""
 	for i in range(n_sentences):
 		sent = []
-		sent.extend(get_start_sequence(ngrams_))
+		sent.extend(choose_start(start_sequences))
 		while True:
 			previous_words = sent[-(n-1):]
 			matches = get_most_common_matches(previous_words, freqs)
@@ -70,8 +71,8 @@ def generate_text(n, n_sentences, corpus_file):
 
 
 	
-n = 3
-print('GENERATED:', generate_text(n, 5, 'witcher_quotes.txt'))
+n = 4
+print('GENERATED:', generate_text(n, 3, 'witcher_quotes.txt'))
 # grams = make_ngrams(n, preprocess_corpus('witcher_quotes.txt'))
 # print(grams[:50])
 # freqs = get_ngram_frequencies(grams)

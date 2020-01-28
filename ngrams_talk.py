@@ -27,7 +27,7 @@ def get_ngram_frequencies(ngrams):
 def get_start_sequence(ngrams):
 	while True:
 		start_sequence = random.choice(ngrams)
-		if not re.findall(r"</s>|\.|n't|'s|'m|'d|\,", " ".join(start_sequence)):
+		if not re.findall(r"</s>|\.|n't|'s|'m|'d|'ve|\,", start_sequence[0]):
 			break
 	return start_sequence
 
@@ -45,7 +45,8 @@ def postprocess_sentence(sentence):
     sent  = [w for w in sentence if '<' not in w]
     sent[0] = sent[0].capitalize()
     sent = " ".join(sent)
-    sent = re.sub(r" (?='|\.|,|n't|[!]|[?])", "", sent)
+    sent = re.sub(r" (?=;|'|\.|,|n't|[!]|[?])", "", sent)
+    sent += " "
     return sent
 
 def generate_text(n, n_sentences, corpus_file):
